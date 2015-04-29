@@ -62,4 +62,4 @@ script:
 notifications:
   email:
     recipients:
-      - pulseaudio-discuss@lists.freedesktop.org
+      - pulseaudio-commits@lists.freedesktop.org
