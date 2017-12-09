@@ -50,9 +50,15 @@ cdata.set_quoted('DESKTOPFILEDIR', join_paths(get_option('datadir'), 'applicatio
 
 check_headers = [
   'arpa/inet.h',
+  'byteswap.h',
   'cpuid.h',
+  'dlfcn.h',
+  'execinfo.h',
+  'glob.h',
   'grp.h',
   'langinfo.h',
+  'linux/input.h',
+  'linux/sockios.h',
   'locale.h',
   'netdb.h',
   'netinet/in.h',
@@ -64,14 +70,26 @@ check_headers = [
   'pwd.h',
   'regex.h',
   'sched.h',
+  'sys/atomic.h',
   'sys/capability.h',
+  'sys/conf.h',
+  'sys/dl.h',
+  'sys/eventfd.h',
+  'sys/filio.h',
   'sys/ioctl.h',
   'sys/mman.h',
   'sys/prctl.h',
   'sys/resource.h',
   'sys/select.h',
   'sys/socket.h',
+  'sys/syscall.h',
+  'sys/uio.h',
   'sys/un.h',
+  'sys/wait.h',
+  'syslog.h',
+  'windows.h',
+  'winsock2.h',
+  'ws2tcpip.h',
   'valgrind/memcheck.h',
   'xlocale.h',
 ]
@@ -87,6 +105,9 @@ endforeach
 if cc.has_header('pthread.h')
   cdata.set('HAVE_PTHREAD', 1)
 endif
+if cc.has_header('linux/input.h')
+  cdata.set('HAVE_EVDEV', 1)
+endif
 
 # Functions
 
@@ -98,9 +119,12 @@ check_functions = [
   'fork',
   'fstat',
   'getaddrinfo',
+  'getgrgid_r',
   'gettimeofday',
+  'getpwnam_r',
   'getuid',
   'lstat',
+  'lrintf',
   'mlock',
   'nanosleep',
   'paccept',
@@ -118,6 +142,7 @@ check_functions = [
   'sig2str',
   'sigaction',
   'strtod_l',
+  'strtof',
   'symlink',
   'sysconf',
   'uname',
@@ -179,6 +204,7 @@ else
 endif
 
 # FIXME: make sure it's >= 2.2
+dl_dep = cc.find_library('dl', required : true)
 ltdl_dep = cc.find_library('ltdl', required : true)
 # FIXME: can meson support libtool -dlopen/-dlpreopen things?
 #        and do we still want to support this at all?
@@ -189,6 +215,9 @@ sndfile_dep = dependency('sndfile', version : '>= 1.0.20')
 dbus_dep = dependency('dbus-1', version : '>= 1.4.12', required : false)
 if dbus_dep.found()
   cdata.set('HAVE_DBUS', 1)
+  if cc.has_function('dbus_watch_get_unix_fd', dependencies: [dbus_dep])
+    cdata.set('HAVE_DBUS_WATCH_GET_UNIX_FD', 1)
+  endif
 endif
 
 x11_dep = dependency('x11-xcb', required : false)
