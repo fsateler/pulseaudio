@@ -11,3 +11,17 @@ option('database',
         type : 'combo', value : 'tdb',
         choices : [ 'gdbm', 'tdb', 'simple' ],
         description : 'Database backend')
+option('bluez4',
+        type : 'combo',
+        choices : [ 'auto', 'true', 'false' ],
+        description : 'Bluez4 support')
+option('bluez5',
+        type : 'combo',
+        choices : [ 'auto', 'true', 'false' ],
+        description : 'Bluez5 support')
+option('bluez5-ofono-headset',
+        type : 'boolean', value : true,
+        description : 'Optional oFono headset backend support (Bluez 5)')
+option('bluez5-native-headset',
+        type : 'boolean', value : true,
+        description : 'Optional native headset backend support (Bluez 5)')

@@ -6,10 +6,6 @@ all_modules = [
   [ 'module-augment-properties', 'module-augment-properties.c' ],
   [ 'module-bluetooth-discover', 'bluetooth/module-bluetooth-discover.c' ],
   [ 'module-bluetooth-policy', 'bluetooth/module-bluetooth-policy.c' ],
-#  [ 'module-bluez4-device', 'bluetooth/module-bluez4-device.c' ],
-#  [ 'module-bluez4-discover', 'bluetooth/module-bluez4-discover.c' ],
-#  [ 'module-bluez5-device', 'bluetooth/module-bluez5-device.c' ],
-#  [ 'module-bluez5-discover', 'bluetooth/module-bluez5-discover.c' ],
 #  [ 'module-bonjour-publish', 'macosx/module-bonjour-publish.c' ],
   [ 'module-card-restore', 'module-card-restore.c' ],
   [ 'module-cli', 'module-cli.c' ],
@@ -105,6 +101,45 @@ endif
 if udev_dep.found()
   all_modules += [ [ 'module-udev-detect', 'module-udev-detect.c', [], [], [udev_dep] ] ]
 endif
+
+if cdata.get('HAVE_BLUEZ4') == 1
+  libbluez4_util = static_library('libbluez4-util',
+    ['bluetooth/bluez4-util.c'],
+    ['bluetooth/a2dp-codecs.h', 'bluetooth/bluez4-util.h' ],
+    c_args : [pa_c_args, server_c_args],
+    include_directories : [configinc, topinc],
+    dependencies : [dbus_dep],
+    install : false
+  )
+  all_modules += [
+    [ 'module-bluez4-device', 'bluetooth/module-bluez4-device.c', [], [], [dbus_dep, sbc_dep],  libbluez4_util ],
+    [ 'module-bluez4-discover', 'bluetooth/module-bluez4-discover.c', [], [], [dbus_dep, sbc_dep],  libbluez4_util ],
+  ]
+endif
+if cdata.get('HAVE_BLUEZ5') == 1
+  libbluez5_util_sources = ['bluetooth/bluez5-util.c']
+  if cdata.get('HAVE_BLUEZ_5_OFONO_HEADSET')
+    libbluez5_util_sources += ['bluetooth/backend-ofono.c']
+  endif
+  if cdata.get('HAVE_BLUEZ_5_NATIVE_HEADSET')
+    libbluez5_util_sources += ['bluetooth/backend-native.c']
+  endif
+  libbluez5_util = static_library('libbluez5-util',
+    libbluez5_util_sources,
+    ['bluetooth/a2dp-codecs.h', 'bluetooth/bluez5-util.h' ],
+    c_args : [pa_c_args, server_c_args],
+    include_directories : [configinc, topinc],
+    dependencies : [dbus_dep],
+    install : false
+  )
+  all_modules += [
+    [ 'module-bluez5-device', 'bluetooth/module-bluez5-device.c', [], [], [dbus_dep, sbc_dep],  libbluez5_util ],
+    [ 'module-bluez5-discover', 'bluetooth/module-bluez5-discover.c', [], [], [dbus_dep, sbc_dep],  libbluez5_util ],
+  ]
+endif
+
+#  [ 'module-bluez5-device', 'bluetooth/module-bluez5-device.c' ],
+#  [ 'module-bluez5-discover', 'bluetooth/module-bluez5-discover.c' ],
 
 foreach m : all_modules
   name = m[0]

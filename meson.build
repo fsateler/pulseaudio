@@ -230,6 +230,26 @@ if alsa_dep.found()
   cdata.set('HAVE_ALSA_UCM', 1)
 endif
 
+wants_bluez4 = get_option('bluez4')
+wants_bluez5 = get_option('bluez5')
+if wants_bluez4 != 'false' or wants_bluez5 != 'false'
+  sbc_dep = dependency('sbc', version : '>= 1.0', required : false)
+  if sbc_dep.found() and dbus_dep.found()
+    if wants_bluez4 != 'false'
+      cdata.set('HAVE_BLUEZ4', 1)
+    endif
+    if wants_bluez5 != 'false'
+      cdata.set('HAVE_BLUEZ5', 1)
+      cdata.set('HAVE_BLUEZ_5_OFONO_HEADSET', get_option('bluez5-ofono-headset'))
+      cdata.set('HAVE_BLUEZ_5_NATIVE_HEADSET', get_option('bluez5-native-headset'))
+    endif
+  elif wants_bluez4 == 'true'
+    error('BLUEZ 4 support not found (requires sbc and D-Bus)')
+  elif wants_bluez5 == 'true'
+    error('BLUEZ 5 support not found (requires sbc and D-Bus)')
+  endif
+endif
+
 # FIXME: support ORC
 cdata.set('DISABLE_ORC', 1)
 
